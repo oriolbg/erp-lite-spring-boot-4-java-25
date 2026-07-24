@@ -52,3 +52,4 @@ target/
 # Subversive/Subclipse (SVN plugin) metadata
 **/.metadata/**
 .metadata
+**\.metadata\**
