@@ -35,3 +35,19 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Eclipse ###
+# Eclipse project files
+.classpath
+.project
+.settings/
+
+# Output directories
+bin/
+target/
+
+# Factory path (for annotation processing)
+.factorypath
+
+# Subversive/Subclipse (SVN plugin) metadata
+.metadata/
