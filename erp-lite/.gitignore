@@ -50,4 +50,4 @@ target/
 .factorypath
 
 # Subversive/Subclipse (SVN plugin) metadata
-.metadata/
+**/.metadata/**
