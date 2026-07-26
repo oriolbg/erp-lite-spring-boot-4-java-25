@@ -1,0 +1,4 @@
+dependencies {
+    // Dependencias del dominio
+    implementation project(':erp-common')
+}
