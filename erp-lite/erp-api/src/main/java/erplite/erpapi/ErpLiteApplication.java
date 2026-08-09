@@ -1,4 +1,4 @@
-package com.example.erp_lite;
+package erplite.erpapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

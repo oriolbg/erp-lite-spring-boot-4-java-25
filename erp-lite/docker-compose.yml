@@ -11,11 +11,15 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      # Datos persistentes de PostgreSQL
+      - postgres-data:/var/lib/postgresql/data
+
+      # Scripts SQL de inicialización
       - ./db/postgresql:/docker-entrypoint-initdb.d
     networks:
       - erp-vpc
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U debuggeandoideas -d erp_db"]
+      test: [ "CMD-SHELL", "pg_isready -U debuggeandoideas -d erp_db" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -31,11 +35,15 @@ services:
     ports:
       - "27017:27017"
     volumes:
+      # Datos persistentes de MongoDB
+      - mongo-data:/data/db
+
+      # Scripts de inicialización
       - ./db/mongodb:/docker-entrypoint-initdb.d
     networks:
       - erp-vpc
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "-u", "debuggeandoideas", "-p", "secret", "--authenticationDatabase", "admin", "--quiet"]
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')", "-u", "debuggeandoideas", "-p", "secret", "--authenticationDatabase", "admin", "--quiet" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -48,10 +56,13 @@ services:
     command: redis-server --requirepass secret --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
+    volumes:
+      # Datos persistentes de Redis
+      - redis-data:/data
     networks:
       - erp-vpc
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "secret", "ping"]
+      test: [ "CMD", "redis-cli", "-a", "secret", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -64,7 +75,7 @@ services:
     container_name: redis-ui
     environment:
       - REDIS_HOSTS=local:redis:6379:0:secret
-      - HTTP_USER=debuggeandoideas    
+      - HTTP_USER=debuggeandoideas
       - HTTP_PASSWORD=secret
     ports:
       - "8081:8081"
@@ -72,7 +83,19 @@ services:
       - redis
     networks:
       - erp-vpc
-      
-networks:   # Generar una subred para nuestros contenedores, para que puedan comunicarse entre sí
+
+networks:
+  # Generar una subred para nuestros contenedores, para que puedan comunicarse entre sí
   erp-vpc:
     driver: bridge
+
+# Volumenes de informacion para guardar los datos persistidos
+volumes:
+  postgres-data:
+    name: erp-postgres-data
+
+  mongo-data:
+    name: erp-mongo-data
+
+  redis-data:
+    name: erp-redis-data

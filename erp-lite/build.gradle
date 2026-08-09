@@ -5,7 +5,7 @@ plugins {
 }
 
 allprojects {
-    group = 'com.debuggeandoideas'
+    group = 'erplite'
     version = '0.0.1-SNAPSHOT'
 
     repositories {
@@ -30,9 +30,16 @@ subprojects {
     }
 
     dependencies {
-        // Lombok para todos los módulos
-        compileOnly 'org.projectlombok:lombok'
-        annotationProcessor 'org.projectlombok:lombok'
+        // Lombok
+        compileOnly 'org.projectlombok:lombok:1.18.42'
+        annotationProcessor 'org.projectlombok:lombok:1.18.42'
+        
+        //Mapstruct
+		implementation 'org.mapstruct:mapstruct:1.6.3'
+		annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+		
+		//Binding Lombok-Mapstruct
+		implementation 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
         // Testing
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
