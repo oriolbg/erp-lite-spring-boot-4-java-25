@@ -3,8 +3,7 @@ package erplite.domain.repositories;
 import java.util.List;
 import java.util.Optional;
 
-import javax.xml.catalog.Catalog;
-
+import erplite.domain.catalog.Catalog;
 import erplite.domain.catalog.CatalogItem;
 import erplite.domain.catalog.CatalogType;
 

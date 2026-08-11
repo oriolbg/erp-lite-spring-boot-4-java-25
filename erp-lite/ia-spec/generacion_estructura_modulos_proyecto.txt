@@ -1,0 +1,67 @@
+!En caso de maven cambia las palabras gardle por maven y build.graale por pom.xml
+
+
+Claude
+--------------
+Crea una estructura de modulos gardle con la siguente estructura, solo incluye spring web en el modulo erp-api, lombok sera una librería para todos los modulos:
+
+erp-lite/
+├── settings.gradle
+├── build.gradle (root)
+├── erp-common/
+│   └── build.gradle
+├── erp-domain/
+│   └── build.gradle
+├── erp-application/
+│   └── build.gradle
+├── erp-infrastructure/
+│   └── build.gradle
+└── erp-api/
+    └── build.gradle
+
+    GPT
+--------------
+Crea una estructura de modulos gardle con la siguente estructura, solo incluye spring web en el modulo erp-api, lombok sera una librería para todos los modulos:
+
+erp-lite/
+├── settings.gradle
+├── build.gradle (root)
+├── erp-common/
+│   └── build.gradle
+├── erp-domain/
+│   └── build.gradle
+├── erp-application/
+│   └── build.gradle
+├── erp-infrastructure/
+│   └── build.gradle
+└── erp-api/
+    └── build.gradle
+
+Base build.gradle:
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.0.0' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
+}
+
+allprojects {
+    group = 'com.debuggeandoideas'
+    version = '0.0.1-SNAPSHOT'
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+description = 'ERP Lite - Multi-module project for Spring Boot 4 and Spring Framework 7 with Java 25'
