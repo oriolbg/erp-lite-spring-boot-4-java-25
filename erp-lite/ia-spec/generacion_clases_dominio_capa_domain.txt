@@ -1,0 +1,440 @@
+==============Promp in chat GPT, Gemini o Claude=============
+# 🎯 GENERADOR DE DOMINIO ERP LITE - INSTRUCCIONES PRECISAS
+
+Eres un experto en DDD y Java moderno. Tu tarea es generar clases del dominio
+siguiendo **EXACTAMENTE** las especificaciones del archivo TOML adjunto.
+
+---
+
+## 📋 REGLAS ESTRICTAS DE IMPLEMENTACIÓN
+
+###  PROHIBIDO:
+- Agregar dependencias de frameworks (Spring, Jakarta, etc.)
+- Usar anotaciones excepto Lombok (solo en ARs y Entities)
+- Crear constructores públicos en ARs y Entities
+- Usar setters
+- Modificar nombres de paquetes, clases o métodos del TOML
+- Agregar métodos no especificados en el TOML
+- Usar Optional en Value Objects (usar validación directa)
+
+### OBLIGATORIO:
+- Java 21+ records para TODOS los Value Objects
+- Lombok SOLO en Aggregate Roots y Entities: `@Getter`, `@NoArgsConstructor(access=PROTECTED)`
+- Validaciones en compact constructor (records) o constructor privado (clases)
+- Lanzar `IllegalArgumentException` con mensaje descriptivo
+- Factory methods estáticos (ej: `Money.of(...)`)
+- Métodos que retornan nuevas instancias (inmutabilidad)
+- Package: `com.debuggeandoideas.erp_lite.domain.*`
+
+---
+
+## 📐 PLANTILLAS OBLIGATORIAS
+
+### PLANTILLA 1: Value Object Simple (Record)
+```java
+package com.debuggeandoideas.erp_lite.domain.{subpackage};
+
+import java.util.UUID;
+
+/**
+ * {DESCRIPTION from TOML}
+ */
+public record {ClassName}(UUID value) {
+    
+    public {ClassName} {
+        if (value == null) {
+            throw new IllegalArgumentException("{ClassName} cannot be null");
+        }
+    }
+    
+    public static {ClassName} of(UUID value) {
+        return new {ClassName}(value);
+    }
+    
+    public static {ClassName} generate() {
+        return new {ClassName}(UUID.randomUUID());
+    }
+}
+```
+
+### PLANTILLA 2: Value Object con Validación de Pattern (Record)
+```java
+package com.debuggeandoideas.erp_lite.domain.{subpackage};
+
+import java.util.regex.Pattern;
+
+/**
+ * {DESCRIPTION from TOML}
+ * Pattern: {PATTERN}
+ */
+public record {ClassName}(String value) {
+    
+    private static final Pattern PATTERN = Pattern.compile("{REGEX}");
+    
+    public {ClassName} {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("{ClassName} cannot be null or blank");
+        }
+        if (!PATTERN.matcher(value).matches()) {
+            throw new IllegalArgumentException(
+                "{ClassName} must match pattern: {PATTERN_DESCRIPTION}"
+            );
+        }
+    }
+    
+    public static {ClassName} of(String value) {
+        return new {ClassName}(value);
+    }
+}
+```
+
+### PLANTILLA 3: Value Object Compuesto con Métodos (Record)
+```java
+package com.debuggeandoideas.erp_lite.domain.shared;
+
+import java.math.BigDecimal;
+import java.util.Currency;
+import java.util.Objects;
+
+/**
+ * Immutable monetary value with currency.
+ * All arithmetic operations return new instances.
+ */
+public record Money(BigDecimal amount, Currency currency) {
+    
+    public Money {
+        if (amount == null) {
+            throw new IllegalArgumentException("Amount cannot be null");
+        }
+        if (amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Amount must be >= 0");
+        }
+        if (currency == null) {
+            throw new IllegalArgumentException("Currency cannot be null");
+        }
+    }
+    
+    public static Money of(BigDecimal amount, Currency currency) {
+        return new Money(amount, currency);
+    }
+    
+    public static Money of(double amount, Currency currency) {
+        return new Money(BigDecimal.valueOf(amount), currency);
+    }
+    
+    public Money add(Money other) {
+        validateSameCurrency(other);
+        return new Money(this.amount.add(other.amount), this.currency);
+    }
+    
+    public Money subtract(Money other) {
+        validateSameCurrency(other);
+        BigDecimal result = this.amount.subtract(other.amount);
+        if (result.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Result cannot be negative");
+        }
+        return new Money(result, this.currency);
+    }
+    
+    public Money multiply(int multiplier) {
+        if (multiplier < 0) {
+            throw new IllegalArgumentException("Multiplier must be >= 0");
+        }
+        return new Money(this.amount.multiply(BigDecimal.valueOf(multiplier)), this.currency);
+    }
+    
+    private void validateSameCurrency(Money other) {
+        if (!this.currency.equals(other.currency)) {
+            throw new IllegalArgumentException(
+                "Cannot operate with different currencies: " + 
+                this.currency + " and " + other.currency
+            );
+        }
+    }
+}
+```
+
+### PLANTILLA 4: Aggregate Root Base
+```java
+package com.debuggeandoideas.erp_lite.domain.common;
+
+import lombok.Getter;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Base class for all Aggregate Roots.
+ * Provides domain event management.
+ */
+@Getter
+public abstract class AggregateRoot<ID> extends Entity<ID> {
+    
+    private final List<DomainEvent> domainEvents = new ArrayList<>();
+    
+    protected AggregateRoot(ID id) {
+        super(id);
+    }
+    
+    protected void registerEvent(DomainEvent event) {
+        this.domainEvents.add(event);
+    }
+    
+    public List<DomainEvent> getDomainEvents() {
+        return Collections.unmodifiableList(domainEvents);
+    }
+    
+    public void clearDomainEvents() {
+        this.domainEvents.clear();
+    }
+}
+```
+
+### PLANTILLA 5: Aggregate Root Completo (Ejemplo Order)
+```java
+package com.debuggeandoideas.erp_lite.domain.order;
+
+import com.debuggeandoideas.erp_lite.domain.common.AggregateRoot;
+import com.debuggeandoideas.erp_lite.domain.order.events.*;
+import com.debuggeandoideas.erp_lite.domain.shared.Money;
+import com.debuggeandoideas.erp_lite.domain.shared.AuditInfo;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Order Aggregate Root.
+ * Represents a customer order with items and status transitions.
+ */
+@Getter
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED) // For JPA
+public class Order extends AggregateRoot<OrderId> {
+    
+    private OrderNumber orderNumber;
+    private Customer customer;
+    private OrderStatus status;
+    private List<OrderItem> items = new ArrayList<>();
+    private Money totalAmount;
+    private AuditInfo auditInfo;
+    
+    // Private constructor for factory method
+    private Order(
+        OrderId id,
+        OrderNumber orderNumber,
+        Customer customer,
+        List<OrderItem> items,
+        String createdBy
+    ) {
+        super(id);
+        this.orderNumber = orderNumber;
+        this.customer = customer;
+        this.status = OrderStatus.pending();
+        this.items = new ArrayList<>(items);
+        this.auditInfo = AuditInfo.create(createdBy, Instant.now());
+        this.totalAmount = calculateTotal();
+        
+        validateItems();
+        
+        // Register domain event
+        registerEvent(new OrderCreated(
+            id,
+            customer.customerId(),
+            customer.customerName(),
+            totalAmount,
+            Instant.now()
+        ));
+    }
+    
+    // Factory method
+    public static Order create(
+        OrderNumber orderNumber,
+        Customer customer,
+        List<OrderItem> items,
+        String createdBy
+    ) {
+        return new Order(
+            OrderId.generate(),
+            orderNumber,
+            customer,
+            items,
+            createdBy
+        );
+    }
+    
+    // Business methods
+    public void confirm() {
+        validateTransition(OrderStatus.confirmed());
+        this.status = OrderStatus.confirmed();
+        this.auditInfo = auditInfo.updateTimestamp();
+        registerEvent(new OrderConfirmed(getId(), Instant.now()));
+    }
+    
+    public void ship() {
+        validateTransition(OrderStatus.shipped());
+        this.status = OrderStatus.shipped();
+        this.auditInfo = auditInfo.updateTimestamp();
+        registerEvent(new OrderShipped(getId(), Instant.now()));
+    }
+    
+    public void deliver() {
+        validateTransition(OrderStatus.delivered());
+        this.status = OrderStatus.delivered();
+        this.auditInfo = auditInfo.updateTimestamp();
+        registerEvent(new OrderDelivered(getId(), Instant.now()));
+    }
+    
+    public void cancel(String reason) {
+        validateTransition(OrderStatus.cancelled());
+        this.status = OrderStatus.cancelled();
+        this.auditInfo = auditInfo.updateTimestamp();
+        registerEvent(new OrderCancelled(getId(), reason, Instant.now()));
+    }
+    
+    public void addItem(OrderItem item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Item cannot be null");
+        }
+        this.items.add(item);
+        this.totalAmount = calculateTotal();
+        this.auditInfo = auditInfo.updateTimestamp();
+    }
+    
+    public void removeItem(OrderItem item) {
+        if (!this.items.remove(item)) {
+            throw new IllegalArgumentException("Item not found in order");
+        }
+        validateItems();
+        this.totalAmount = calculateTotal();
+        this.auditInfo = auditInfo.updateTimestamp();
+    }
+    
+    // Private validation methods
+    private void validateItems() {
+        if (items == null || items.isEmpty()) {
+            throw new IllegalArgumentException("Order must have at least one item");
+        }
+    }
+    
+    private void validateTransition(OrderStatus nextStatus) {
+        if (!status.canTransitionTo(nextStatus)) {
+            throw new IllegalStateException(
+                "Cannot transition from " + status.value() + " to " + nextStatus.value()
+            );
+        }
+    }
+    
+    private Money calculateTotal() {
+        if (items.isEmpty()) {
+            throw new IllegalArgumentException("Cannot calculate total without items");
+        }
+        
+        Money total = items.get(0).getSubtotal();
+        for (int i = 1; i < items.size(); i++) {
+            total = total.add(items.get(i).getSubtotal());
+        }
+        return total;
+    }
+}
+```
+
+---
+
+## 📦 ORDEN DE GENERACIÓN (INMUTABLE)
+
+**Genera EN ORDEN y ESPERA CONFIRMACIÓN entre fases:**
+
+### FASE 1 - Base (3 clases)
+```
+✅ DomainEvent.java
+✅ Entity.java
+✅ AggregateRoot.java
+```
+**CHECKPOINT**: Usuario confirma antes de continuar
+
+### FASE 2 - Shared VOs (5 clases)
+```
+✅ Money.java
+✅ Quantity.java
+✅ Email.java
+✅ CustomerId.java
+✅ AuditInfo.java
+```
+**CHECKPOINT**: Usuario confirma antes de continuar
+
+### FASE 3 - Product (8 clases + 4 events)
+```
+✅ ProductId.java
+✅ SKU.java
+✅ ProductName.java
+✅ Stock.java
+✅ CategoryReference.java
+✅ ProductImage.java
+✅ Product.java (AR)
+✅ ProductCreated/Updated/StockChanged/Deactivated.java
+```
+**CHECKPOINT**: Usuario confirma antes de continuar
+
+### FASE 4 - Order (7 clases + 5 events)
+```
+✅ OrderId.java
+✅ OrderItemId.java
+✅ OrderNumber.java
+✅ OrderStatus.java
+✅ Customer.java
+✅ OrderItem.java (Entity)
+✅ Order.java (AR)
+✅ OrderCreated/Confirmed/Shipped/Delivered/Cancelled.java
+```
+
+---
+
+## 🎯 FORMATO DE SALIDA
+
+Para cada clase, genera:
+```java
+// ============================================================================
+// CLASE: {ClassName}
+// UBICACIÓN: domain/{subpackage}/{ClassName}.java
+// TIPO: {Record|Entity|AggregateRoot|Event}
+// ============================================================================
+
+{CÓDIGO COMPLETO}
+
+// ============================================================================
+```
+
+---
+
+## 🧪 CHECKLIST DE VALIDACIÓN (Para el Alumno)
+
+Después de generar, verifica:
+- [ ] ¿Compila sin errores?
+- [ ] ¿No hay imports de Spring/Jakarta?
+- [ ] ¿Los records tienen compact constructor?
+- [ ] ¿Los ARs tienen `@Getter` y `@NoArgsConstructor(PROTECTED)`?
+- [ ] ¿Todas las validaciones lanzan `IllegalArgumentException`?
+- [ ] ¿Los factory methods son estáticos?
+- [ ] ¿Los métodos de VOs retornan nuevas instancias?
+
+---
+
+## 📄 ARCHIVO TOML DE ESPECIFICACIÓN
+
+[PEGAR AQUÍ EL CONTENIDO DEL ARCHIVO 5_3-toml.toml]
+
+---
+
+## 🚀 INSTRUCCIÓN FINAL
+
+Genera **SOLO LA FASE 1** ahora. Espera mi confirmación antes de continuar con la siguiente fase.
+
+Comienza con:
+1. DomainEvent.java
+2. Entity.java
+3. AggregateRoot.java
+
+Usa el formato de salida especificado arriba.
