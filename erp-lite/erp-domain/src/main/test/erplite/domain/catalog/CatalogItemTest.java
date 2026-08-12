@@ -66,7 +66,6 @@ class CatalogItemTest {
         assertEquals("This product is a test", item.getDescription());
         assertEquals(10, item.getDisplayOrder());
         assertTrue(item.isActive());
-
         assertEquals("Test", item.getMetadata("display"));
         assertTrue(item.hasMetadata("display"));
         assertFalse(item.hasMetadata("missing"));
