@@ -64,3 +64,5 @@ logging:
     org.hibernate.SQL: ${LOG_LEVEL_SQL:DEBUG}
     org.hibernate.type.descriptor.sql.BasicBinder: ${LOG_LEVEL_SQL_PARAMS:TRACE}
     org.mongodb.driver: ${LOG_LEVEL_MONGO:DEBUG}
+
+#debug: true
