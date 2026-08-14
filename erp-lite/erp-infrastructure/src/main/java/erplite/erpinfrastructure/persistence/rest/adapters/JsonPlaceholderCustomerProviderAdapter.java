@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 import erplite.domain.customer.CustomerInfo;
-import erplite.domain.customer.CustomerProviderService;
+import erplite.domain.ports.CustomerProviderService;
 import erplite.erpinfrastructure.persistence.rest.dtos.UserDTO;
 import erplite.erpinfrastructure.persistence.rest.mappers.CustomerMapper;
 import erplite.erpinfrastructure.persistence.rest.models.JsonplaceholderConfigModel;
