@@ -1,6 +1,8 @@
-package erplite.domain.customer;
+package erplite.domain.ports;
 
 import java.util.Optional;
+
+import erplite.domain.customer.CustomerInfo;
 
 /**
  *  Port for external service for JSONPlaceholder
