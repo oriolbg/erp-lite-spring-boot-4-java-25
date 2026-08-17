@@ -1,10 +1,10 @@
 package erplite.erpinfrastructure.persistence.aws.adapters;
 
+import erplite.domain.entities.product.ProductImage;
 import org.springframework.stereotype.Service;
 
 import erplite.domain.exceptions.MyBusinessException;
-import erplite.domain.ports.ImageStorageService;
-import erplite.domain.product.ProductImage;
+import erplite.domain.ports.services.ImageStorageServicePort;
 import erplite.erpinfrastructure.persistence.aws.models.AwsConfigModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AwsImageStorageAdapter implements ImageStorageService {
+public class AwsImageStorageAdapter implements ImageStorageServicePort {
 
     private final S3Client s3Client;
     private final AwsConfigModel awsConfig;

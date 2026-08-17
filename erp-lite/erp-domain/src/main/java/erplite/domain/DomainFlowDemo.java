@@ -4,20 +4,15 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Map;
 
-import erplite.domain.catalog.Catalog;
-import erplite.domain.catalog.CatalogItem;
-import erplite.domain.catalog.CatalogType;
+import erplite.domain.entities.catalog.CatalogRoot;
+import erplite.domain.entities.catalog.CatalogItem;
+import erplite.domain.entities.catalog.CatalogType;
 import erplite.domain.common.DomainEvent;
-import erplite.domain.order.Customer;
-import erplite.domain.order.Order;
-import erplite.domain.order.OrderItem;
-import erplite.domain.order.OrderNumber;
-import erplite.domain.product.CategoryReference;
-import erplite.domain.product.Product;
-import erplite.domain.product.ProductImage;
-import erplite.domain.product.ProductName;
-import erplite.domain.product.SKU;
-import erplite.domain.product.Stock;
+import erplite.domain.entities.order.Customer;
+import erplite.domain.entities.order.OrderItem;
+import erplite.domain.entities.order.OrderNumber;
+import erplite.domain.entities.order.OrderRoot;
+import erplite.domain.entities.product.*;
 import erplite.domain.shared.CustomerId;
 import erplite.domain.shared.Money;
 import erplite.domain.shared.Quantity;
@@ -81,7 +76,7 @@ public class DomainFlowDemo {
         );
         deprecated.turnOffStatus(); // La Entity tiene lógica de estado propio
 
-        Catalog productCatalog = new Catalog(
+        CatalogRoot productCatalog = new CatalogRoot(
                 "cat-001",
                 CatalogType.PRODUCT_CATEGORIES,
                 "Categorías de Productos",
@@ -130,7 +125,7 @@ public class DomainFlowDemo {
         // Product.create() es el factory method del Aggregate Root.
         // Internamente genera un ProductId (UUID), crea AuditInfo y
         // registra el DomainEvent ProductCreated.
-        Product laptop = Product.create(
+        ProductRoot laptop = ProductRoot.create(
                 laptopSku,
                 laptopName,
                 "Laptop de alto rendimiento con pantalla 15 pulgadas",
@@ -150,7 +145,7 @@ public class DomainFlowDemo {
                 + " -> " + laptop.getDomainEvents().get(0).getClass().getSimpleName());
 
         // Segundo producto para la orden
-        Product mouse = Product.create(
+        ProductRoot mouse = ProductRoot.create(
                 SKU.of("MOUSE-042"),
                 ProductName.of("Mouse Inalámbrico Ergonómico"),
                 "Mouse ergonómico con 6 botones programables",
@@ -200,7 +195,7 @@ public class DomainFlowDemo {
         IO.println("\n--- [4] PRODUCT AGGREGATE - Precio y Ciclo de Vida ---");
 
         // Creamos un producto extra para demostrar desactivación
-        Product oldKeyboard = Product.create(
+        ProductRoot oldKeyboard = ProductRoot.create(
                 SKU.of("KEYB-099"),
                 ProductName.of("Teclado Mecánico Vintage"),
                 "Modelo descontinuado",
@@ -261,7 +256,7 @@ public class DomainFlowDemo {
 
         // Order.create() valida ítems no vacíos, misma moneda, calcula total
         // y registra el DomainEvent OrderCreated
-        Order order = Order.create(orderNumber, customer, List.of(laptopItem, mouseItem), "sistema");
+        OrderRoot order = OrderRoot.create(orderNumber, customer, List.of(laptopItem, mouseItem), "sistema");
 
         IO.println("Orden creada: " + order.getOrderNumber().value());
         IO.println("  Cliente: " + order.getCustomer().customerName());
@@ -281,7 +276,7 @@ public class DomainFlowDemo {
         IO.println("\n--- [6] ORDER AGGREGATE - Modificación en PENDING ---");
 
         // Creamos un tercer producto para agregar a la orden
-        Product usbHub = Product.create(
+        ProductRoot usbHub = ProductRoot.create(
                 SKU.of("USBH-007"),
                 ProductName.of("USB Hub 7 Puertos"),
                 "Hub USB 3.0 con alimentación independiente",
@@ -349,7 +344,7 @@ public class DomainFlowDemo {
         IO.println("\n--- [8] ORDER AGGREGATE - Flujo Alternativo: Cancelación ---");
 
         OrderItem laptopItem2 = OrderItem.from(laptop, Quantity.of(1));
-        Order orderToCancel = Order.create(
+        OrderRoot orderToCancel = OrderRoot.create(
                 OrderNumber.of("ORD-2026-002"),
                 Customer.of(CustomerId.of(7L), "Carlos Ramírez"),
                 List.of(laptopItem2),
@@ -387,7 +382,7 @@ public class DomainFlowDemo {
         testInvariant("CustomerId <= 0", () -> CustomerId.of(0L));
         testInvariant("ProductName muy corta (< 3 chars)", () -> ProductName.of("AB"));
         testInvariant("Orden sin ítems", () ->
-                Order.create(OrderNumber.of("ORD-2026-003"),
+                OrderRoot.create(OrderNumber.of("ORD-2026-003"),
                         Customer.of(CustomerId.of(1L), "Test"),
                         List.of(), "admin"));
         testInvariant("Transición inválida DELIVERED → CANCELLED", () -> order.cancel("intento inválido"));

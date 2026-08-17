@@ -1,11 +1,11 @@
 package erplite.erpinfrastructure.persistence.rest.mappers;
 
+import erplite.domain.entities.customer.CustomerInfo;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
-import erplite.domain.customer.CustomerInfo;
 import erplite.erpinfrastructure.persistence.rest.dtos.AddressDTO;
 import erplite.erpinfrastructure.persistence.rest.dtos.UserDTO;
 

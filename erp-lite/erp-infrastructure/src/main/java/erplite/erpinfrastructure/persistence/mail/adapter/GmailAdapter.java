@@ -5,14 +5,14 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import erplite.domain.entities.order.OrderId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import erplite.domain.order.OrderId;
-import erplite.domain.ports.OrderConfirmEmailService;
+import erplite.domain.ports.services.OrderConfirmEmailServicePort;
 import erplite.domain.shared.Email;
 import erplite.domain.shared.Money;
 import jakarta.mail.MessagingException;
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GmailAdapter implements OrderConfirmEmailService {
+public class GmailAdapter implements OrderConfirmEmailServicePort {
     
     private final JavaMailSender mailSender;
 
