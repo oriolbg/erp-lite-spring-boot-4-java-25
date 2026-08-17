@@ -2,14 +2,14 @@ package erplite.erpinfrastructure.persistence.rest.adapters;
 
 import java.util.Optional;
 
+import erplite.domain.entities.customer.CustomerInfo;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-import erplite.domain.customer.CustomerInfo;
-import erplite.domain.ports.CustomerProviderService;
+import erplite.domain.ports.services.CustomerProviderServicePort;
 import erplite.erpinfrastructure.persistence.rest.dtos.UserDTO;
 import erplite.erpinfrastructure.persistence.rest.mappers.CustomerMapper;
 import erplite.erpinfrastructure.persistence.rest.models.JsonplaceholderConfigModel;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class JsonPlaceholderCustomerProviderAdapter implements CustomerProviderService {
+public class JsonPlaceholderCustomerProviderAdapter implements CustomerProviderServicePort {
 
     private final RestClient jsonClient;
     private final CustomerMapper customerMapper;
