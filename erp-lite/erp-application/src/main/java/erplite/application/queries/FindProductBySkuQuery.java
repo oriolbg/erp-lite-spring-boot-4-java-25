@@ -1,5 +1,6 @@
 package erplite.application.queries;
 
+import erplite.application.exceptions.QueryException;
 import erplite.domain.ports.repositories.ProductCatalogRepositoryPort;
 import erplite.domain.views.ProductView;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,12 @@ public class FindProductBySkuQuery {
 
     public Optional<ProductView> execute(String sku) {
         log.info("Execute FindProductBySkuQuery sku: {}", sku);
-        return this.productCatalogRepository.findBySku(sku);
+
+        try{
+            return this.productCatalogRepository.findBySku(sku);
+        }catch (RuntimeException e) {
+            log.error("Error executing FindProductBySkuQuery: ", e);
+            throw new QueryException("Error executing FindProductBySkuQuery");
+        }
     }
 }
