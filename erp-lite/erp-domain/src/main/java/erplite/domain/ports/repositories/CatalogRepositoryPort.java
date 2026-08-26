@@ -1,20 +1,21 @@
 package erplite.domain.ports.repositories;
 
+import erplite.common.enums.CatalogType;
+import erplite.domain.views.CatalogView;
+import erplite.domain.views.ItemsView;
+
 import java.util.List;
 import java.util.Optional;
 
-import erplite.domain.entities.catalog.CatalogRoot;
-import erplite.domain.entities.catalog.CatalogItem;
-import erplite.domain.entities.catalog.CatalogType;
 
 /**
 * Port read-only for Catalog
  */
 public interface CatalogRepositoryPort {
 
-    Optional<CatalogRoot> findByType(CatalogType type);
+    Optional<CatalogView> findByType(CatalogType type);
 
-    List<CatalogItem> findItemsByType(CatalogType type);
+    List<ItemsView> findItemsByType(CatalogType type);
 
-    Optional<CatalogItem> findItemByTypeAndCode(CatalogType type, String code);
+    Optional<ItemsView> findItemByTypeAndCode(CatalogType type, String code);
 }

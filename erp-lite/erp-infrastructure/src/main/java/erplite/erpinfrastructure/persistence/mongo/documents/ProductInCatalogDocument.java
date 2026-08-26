@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Document(collection = "product_documents")
 @AllArgsConstructor
@@ -41,7 +42,7 @@ public class ProductInCatalogDocument {
 
     private String sku;
 
-    private ProductSpecifications specifications;
+    private Map<String,Object> specifications;
 
     private int stock;
 

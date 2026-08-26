@@ -12,7 +12,7 @@ services:
       - "5432:5432"
     volumes:
       # Datos persistentes de PostgreSQL
-      - postgres-data:/var/lib/postgresql/data
+      # - postgres-data:/var/lib/postgresql/data
 
       # Scripts SQL de inicialización
       - ./db/postgresql:/docker-entrypoint-initdb.d
@@ -36,7 +36,7 @@ services:
       - "27017:27017"
     volumes:
       # Datos persistentes de MongoDB
-      - mongo-data:/data/db
+      # - mongo-data:/data/db
 
       # Scripts de inicialización
       - ./db/mongodb:/docker-entrypoint-initdb.d

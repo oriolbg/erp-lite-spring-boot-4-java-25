@@ -4,9 +4,7 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Map;
 
-import erplite.domain.entities.catalog.CatalogRoot;
-import erplite.domain.entities.catalog.CatalogItem;
-import erplite.domain.entities.catalog.CatalogType;
+import erplite.common.enums.CatalogType;
 import erplite.domain.common.DomainEvent;
 import erplite.domain.entities.order.Customer;
 import erplite.domain.entities.order.OrderItem;
@@ -34,7 +32,7 @@ public class DomainFlowDemo {
         IO.println("==========================================================");
         IO.println("  DEMO DEL MÓDULO DE DOMINIO - ERP LITE (DDD)");
         IO.println("==========================================================");
-
+        /*
         // ------------------------------------------------------------------
         // 1. CATALOG AGGREGATE
         //
@@ -95,7 +93,7 @@ public class DomainFlowDemo {
         // Búsqueda por código: el Aggregate expone un método con semántica de negocio
         productCatalog.findItemByCode("ELECTRONICS").ifPresent(item ->
                 IO.println("Tasa de impuesto para ELECTRONICS: " + item.getMetadata("taxRate")));
-
+        */
         // ------------------------------------------------------------------
         // 2. PRODUCT AGGREGATE - Creación con Value Objects
         //
