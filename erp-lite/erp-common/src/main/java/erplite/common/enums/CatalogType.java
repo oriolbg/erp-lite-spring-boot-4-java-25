@@ -1,10 +1,10 @@
-package erplite.erpinfrastructure.persistence.mongo.documents;
+package erplite.common.enums;
 
 public enum CatalogType {
     PRODUCT_CATEGORIES,
     ORDER_STATUSES,
     PAYMENT_METHODS,
     SHIPPING_METHODS,
-    COUNTRIES, 
+    COUNTRIES,
     CURRENCIES
 }

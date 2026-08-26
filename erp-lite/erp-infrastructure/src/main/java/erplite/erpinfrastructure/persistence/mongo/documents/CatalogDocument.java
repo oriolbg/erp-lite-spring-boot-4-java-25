@@ -1,6 +1,7 @@
 package erplite.erpinfrastructure.persistence.mongo.documents;
 
 
+import erplite.common.enums.CatalogType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
