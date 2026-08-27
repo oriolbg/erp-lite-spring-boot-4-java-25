@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 //@EnableJpaRepositories(basePackages ="erplite.erpinfrastructure.persistence.jpa.repositories")
 //@EnableMongoRepositories(basePackages ="erplite.erpinfrastructure.persistence.mongo.repositories")
 //@EntityScan(basePackages = "erplite.erpinfrastructure.persistence.jpa.entities")
-@SpringBootApplication
-public class ErpLiteApplication implements CommandLineRunner{
+@SpringBootApplication(scanBasePackages = "erplite")
+public class ErpLiteApplication {
 	
 //	@Autowired
 //	private CatalogRepository catalogRepository;
@@ -23,8 +23,8 @@ public class ErpLiteApplication implements CommandLineRunner{
 	/**
 	 * Para visualizar los datos almacenados y validar la conexion con la base de datos
 	 */
-	@Override
-	public void run(String... args) throws Exception {
+//	@Override
+//	public void run(String... args) throws Exception {
 //		this.catalogRepository.findAll().stream()
 //			.map(CatalogDocument::getName)
 //			.forEach(System.out::println);
@@ -32,6 +32,6 @@ public class ErpLiteApplication implements CommandLineRunner{
 //		this.productRepository.findAll().stream()
 //		.map(ProductEntity::getName)
 //		.forEach(System.out::println);
-	}
+//	}
 
 }

@@ -10,7 +10,8 @@ public class ApiVersionConfig  implements WebMvcConfigurer {
     @Override
     public void configureApiVersioning(ApiVersionConfigurer configurer){
         //Configuracion en el Header por toda la API
-        configurer.useRequestHeader("X-Api-Version");
+        configurer.useRequestHeader("X-Api-Version")
+                .setDefaultVersion("1");
 
         //Configuracion por Path de toda la API
         //configurer.usePathSegment(1);//api/v1/product

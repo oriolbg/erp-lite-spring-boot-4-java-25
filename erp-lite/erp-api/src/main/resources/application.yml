@@ -80,6 +80,15 @@ cache:
 server:
   port: 9090
 
+#Open API
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
+  packages-to-scan: erplite.erpapi
+
 # Logging
 logging:
   level:
