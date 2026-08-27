@@ -1,0 +1,10 @@
+
+Genera documentacion en mis 4 controladores ubicados en:
+<replace-your-controller-path>
+
+Basado en el proyecto las anotaciones que nececito en cada controladores son:
+
+@Tag
+@Operation
+@ApiResponse
+@Parameter

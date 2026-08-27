@@ -1,5 +1,6 @@
 package erplite.application.queries;
 
+import erplite.application.exceptions.QueryException;
 import erplite.domain.ports.repositories.ProductCatalogRepositoryPort;
 import erplite.domain.views.ProductView;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,12 @@ public class FindProductByIdQuery {
 
     public Optional<ProductView> execute(String id) {
         log.info("Execute FindProductByIdQuery id: {}", id);
-        return this.productCatalogRepository.findById(id);
+
+        try{
+            return this.productCatalogRepository.findById(id);
+        }catch (RuntimeException e) {
+            log.error("Error executing FindProductByIdQuery: ", e);
+            throw new QueryException("Error executing FindProductByIdQuery");
+        }
     }
 }

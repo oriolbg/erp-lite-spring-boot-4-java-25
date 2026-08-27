@@ -1,5 +1,6 @@
 package erplite.application.queries;
 
+import erplite.application.exceptions.QueryException;
 import erplite.domain.ports.repositories.ProductCatalogRepositoryPort;
 import erplite.domain.views.ProductView;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,12 @@ public class FindProductActiveQuery {
 
     public List<ProductView> execute() {
         log.info("Execute FindProductActiveQuery");
-        return this.productCatalogRepository.findActive();
+
+        try{
+            return this.productCatalogRepository.findActive();
+        }catch (RuntimeException e) {
+            log.error("Error executing FindProductActiveQuery: ", e);
+            throw new QueryException("Error executing FindProductActiveQuery");
+        }
     }
 }

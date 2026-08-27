@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class UpdateOrderUseCase {
+public class UpdateOrderStatusUseCase {
 
     private final OrderRepositoryPort orderRepository;
     private final CommandHelper commandHelper;

@@ -1,5 +1,6 @@
 package erplite.application.queries;
 
+import erplite.application.exceptions.QueryException;
 import erplite.common.enums.CatalogType;
 import erplite.domain.ports.repositories.CatalogRepositoryPort;
 import erplite.domain.views.ItemsView;
@@ -18,6 +19,12 @@ public class FindCatalogItemsByTypeQuery {
 
     public List<ItemsView> execute(CatalogType catalogType) {
         log.info("Execute FindCatalogItemsByTypeQuery");
-        return this.catalogRepository.findItemsByType(catalogType);
+
+        try{
+            return this.catalogRepository.findItemsByType(catalogType);
+        }catch (RuntimeException e) {
+            log.error("Error executing FindCatalogItemsByTypeQuery: ", e);
+            throw new QueryException("Error executing FindCatalogItemsByTypeQuery");
+        }
     }
 }
