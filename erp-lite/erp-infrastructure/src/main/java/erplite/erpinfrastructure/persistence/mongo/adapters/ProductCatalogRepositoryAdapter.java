@@ -2,15 +2,14 @@ package erplite.erpinfrastructure.persistence.mongo.adapters;
 
 
 import erplite.domain.ports.repositories.ProductCatalogRepositoryPort;
-import erplite.domain.views.CatalogView;
 import erplite.domain.views.ProductView;
 import erplite.erpinfrastructure.persistence.mongo.mappers.ProductCatalogMapper;
 import erplite.erpinfrastructure.persistence.mongo.repositories.ProductInCatalogRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,21 +23,20 @@ public class ProductCatalogRepositoryAdapter implements ProductCatalogRepository
 
     private final ProductInCatalogRepository productInCatalogRepository;
     private final ProductCatalogMapper productCatalogMapper;
-    private final CacheManager cacheManager;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
 
     @Override
     public Optional<ProductView> findById(String id) {
         log.info("Find product by id: {}", id);
 
-        Cache cache = this.cacheManager.getCache(CACHE_PRODUCTS_BY_ID);
-        if(cache!=null){
-            ProductView productInCache = cache.get(id, ProductView.class);
-            if(productInCache != null){
-                log.info("Find product by id in cache: {}", productInCache);
-                return Optional.of(productInCache);
-            }
+        Object raw = redisTemplate.opsForValue().get(CACHE_PRODUCTS_BY_ID + id);
+        if(raw!=null){
+            log.debug("Found product by id in cache: {}", id);
+            return Optional.of(this.objectMapper.convertValue(raw, ProductView.class));
         }
 
+        log.debug("Finding product by id in mongo: {}", id);
         return this.productInCatalogRepository.findById(id).map(productCatalogMapper::toView);
     }
 
@@ -46,15 +44,13 @@ public class ProductCatalogRepositoryAdapter implements ProductCatalogRepository
     public Optional<ProductView> findBySku(String sku) {
         log.info("Find product by sku: {}", sku);
 
-        Cache cache = this.cacheManager.getCache(CACHE_PRODUCTS_BY_SKU);
-        if(cache!=null){
-            ProductView productInCache = cache.get(sku, ProductView.class);
-            if(productInCache != null){
-                log.info("Find product by sku in cache: {}", productInCache);
-                return Optional.of(productInCache);
-            }
+        Object raw = redisTemplate.opsForValue().get(CACHE_PRODUCTS_BY_SKU + sku);
+        if(raw!=null){
+            log.debug("Found product by sku in cache: {}", sku);
+            return Optional.of(this.objectMapper.convertValue(raw, ProductView.class));
         }
 
+        log.debug("Finding product by sku in mongo: {}", sku);
         return this.productInCatalogRepository.findBySku(sku).map(productCatalogMapper::toView);
     }
 
@@ -67,24 +63,34 @@ public class ProductCatalogRepositoryAdapter implements ProductCatalogRepository
 
     @Override
     public List<ProductView> findByCategory(String category) {
-        log.info("Find product by category: {}", category);
+         log.info("Find product by category: {}", category);
 
-        Cache cache = this.cacheManager.getCache(CACHE_PRODUCTS_BY_CATEGORY);
-        if(cache!=null){
-            List<ProductView> productsInCache = cache.get("all", List.class);
-            if(productsInCache != null){
-                log.info("Find products by category in cache: {}", productsInCache);
-                return productsInCache;
-            }
-        }
+         Object raw = this.redisTemplate.opsForList().range(CACHE_PRODUCTS_BY_CATEGORY + category, 0, -1);
+         if(raw!=null){
+             log.debug("Found product by category in cache: {}", category);
+             return this.objectMapper.convertValue(raw,
+                    this.objectMapper.getTypeFactory().constructCollectionType(List.class, ProductView.class)
+             );
+         }
 
-        return this.productInCatalogRepository.findByCategoryIdAndActiveTrue(category)
-                .stream().map(productCatalogMapper::toView).toList();
+         log.debug("Finding product by category in mongo: {}", category);
+         return this.productInCatalogRepository.findByCategoryIdAndActiveTrue(category)
+                 .stream().map(productCatalogMapper::toView).toList();
     }
 
     @Override
     public List<ProductView> findActive() {
         log.info("Find active products");
+
+        Object raw = this.redisTemplate.opsForList().range(CACHE_PRODUCTS_ACTIVE, 0, -1);
+        if(raw!=null){
+            log.debug("Found active products in cache");
+            return this.objectMapper.convertValue(raw,
+                    this.objectMapper.getTypeFactory().constructCollectionType(List.class, ProductView.class)
+            );
+        }
+
+        log.info("Finding active products");
         return this.productInCatalogRepository.findByActiveTrueOrderByIdAsc()
                 .stream().map(productCatalogMapper::toView).toList();
     }

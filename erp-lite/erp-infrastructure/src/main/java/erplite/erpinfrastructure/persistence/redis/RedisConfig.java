@@ -34,8 +34,10 @@ public class RedisConfig {
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
 
         GenericJacksonJsonRedisSerializer serializer = GenericJacksonJsonRedisSerializer.builder()
-            .typePropertyName("_type")
-            .enableUnsafeDefaultTyping()
+                //No es necesario usar restricciones de tipo en los serializadores
+                //El cache se usara en 2 microservicios distintos por lo que no se puede ser tan restrictivo --> se usara RedisTemplate
+//            .typePropertyName("_type")
+//            .enableUnsafeDefaultTyping()
             .build();
 
         RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
@@ -65,8 +67,10 @@ public class RedisConfig {
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         GenericJacksonJsonRedisSerializer serializer = GenericJacksonJsonRedisSerializer.builder()
-            .typePropertyName("_type")
-            .enableUnsafeDefaultTyping()
+                //No es necesario usar restricciones de tipo en los serializadores
+                //El cache se usara en 2 microservicios distintos por lo que no se puede ser tan restrictivo --> se usara RedisTemplate
+//            .typePropertyName("_type")
+//            .enableUnsafeDefaultTyping()
             .build();
 
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
