@@ -28,4 +28,7 @@ dependencies {
     //Mail & HTML
     api 'org.springframework.boot:spring-boot-starter-mail'
     api 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	//RabbitMQ
+	api 'org.springframework.boot:spring-boot-starter-amqp'
 }

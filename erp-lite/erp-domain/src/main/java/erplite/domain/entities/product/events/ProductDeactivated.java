@@ -1,9 +1,9 @@
-package erplite.domain.entities.catalog.product.events;
-
-import java.time.Instant;
+package erplite.domain.entities.product.events;
 
 import erplite.domain.common.DomainEvent;
 import erplite.domain.entities.product.ProductId;
+
+import java.time.Instant;
 
 /**
  * Emitted when product is deactivated.

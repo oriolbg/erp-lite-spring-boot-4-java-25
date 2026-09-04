@@ -3,6 +3,7 @@ package erplite.application.use_cases.product;
 import erplite.application.commands.product.CreateProductCommand;
 import erplite.application.exceptions.CommandException;
 import erplite.domain.entities.product.*;
+import erplite.domain.ports.messages.EventPublisherPort;
 import erplite.domain.ports.repositories.ProductRepositoryPort;
 import erplite.domain.ports.services.ImageStorageServicePort;
 import erplite.domain.shared.Money;
@@ -24,12 +25,13 @@ import java.util.Currency;
  */
 @Slf4j
 @Service
-@Transactional
+@Transactional(noRollbackFor = RuntimeException.class)
 @RequiredArgsConstructor
 public class CreateProductUseCase {
 
     private final ProductRepositoryPort productRepository;
     private final ImageStorageServicePort imageStorageService;
+    private final EventPublisherPort eventPublisherPort;
 
 
     public String execute(CreateProductCommand command) {
@@ -70,7 +72,8 @@ public class CreateProductUseCase {
 
             log.info("Product persisted with ID: {}", savedProduct.getId().value());
 
-            // TODO: Handle domain events - Sync to MongoDB
+            // Evento de envio por mensaje
+            this.sendEventMessage(product);
 
             return savedProduct.getId().value().toString();
 
@@ -109,5 +112,13 @@ public class CreateProductUseCase {
             log.error("Unexpected error uploading image with SKU", e);
             throw new CommandException("Error uploading image with SKU: " + e.getMessage());
         }
+    }
+
+    private void sendEventMessage(ProductRoot product){
+        product.getDomainEvents().forEach(eventPublisherPort::publish);
+
+        product.clearDomainEvents();
+
+        log.info("Event send successfully");
     }
 }

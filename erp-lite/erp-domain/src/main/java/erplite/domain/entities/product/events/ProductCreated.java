@@ -1,12 +1,10 @@
-package erplite.domain.entities.catalog.product.events;
-
-import java.time.Instant;
+package erplite.domain.entities.product.events;
 
 import erplite.domain.common.DomainEvent;
-import erplite.domain.entities.product.ProductId;
-import erplite.domain.entities.product.ProductName;
-import erplite.domain.entities.product.SKU;
+import erplite.domain.entities.product.*;
 import erplite.domain.shared.Money;
+
+import java.time.Instant;
 
 /**
  * Emitted when a new product is created.
@@ -23,6 +21,11 @@ public record ProductCreated(
         SKU sku,
         ProductName name,
         Money price,
-        Instant timestamp
+        Instant timestamp,
+        String description,
+        Stock stock,
+        CategoryReference category,
+        ProductImage image,
+        boolean active
 ) implements DomainEvent {
 }
